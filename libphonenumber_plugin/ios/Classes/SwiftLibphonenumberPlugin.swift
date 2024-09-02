@@ -41,7 +41,6 @@ public class SwiftLibphonenumberPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    
     func isValidPhoneNumber(call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as! Dictionary<String, Any>
         let phoneNumber = arguments["phoneNumber"] as! String
@@ -51,7 +50,6 @@ public class SwiftLibphonenumberPlugin: NSObject, FlutterPlugin {
         
         result(isValid)
     }
-    
     
     func normalizePhoneNumber(call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as! Dictionary<String, Any>
@@ -78,7 +76,6 @@ public class SwiftLibphonenumberPlugin: NSObject, FlutterPlugin {
         let isoCode = arguments["isoCode"] as! String
         
         do {
-            
             let p: PhoneNumber = try parsePhoneNumber(phoneNumber, withRegion: isoCode.uppercased(), ignoreType: true)
             
             let regionCode: String? = phoneNumberKit.getRegionCode(of: p)
@@ -92,8 +89,7 @@ public class SwiftLibphonenumberPlugin: NSObject, FlutterPlugin {
             
             let formattedNumber: String? = phoneNumberKit.format(p, toType: PhoneNumberFormat.national)
             
-            
-            let data : Dictionary<String, String?> = ["isoCode": regionCode, "regionCode" : countryCode, "formattedPhoneNumber" : formattedNumber]
+            let data: Dictionary<String, String?> = ["isoCode": regionCode, "regionCode" : countryCode, "formattedPhoneNumber" : formattedNumber]
             
             result(data)
         } catch let error as NSError {
@@ -119,13 +115,13 @@ public class SwiftLibphonenumberPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    
     func formatAsYouType(call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as! Dictionary<String, Any>
         let phoneNumber = arguments["phoneNumber"] as! String
         let isoCode = arguments["isoCode"] as! String
         
-        let partialFormatter: PartialFormatter = PartialFormatter(phoneNumberKit: phoneNumberKit, defaultRegion: isoCode.uppercased())
+        // Initialize PartialFormatter correctly without passing PhoneNumberKit
+        let partialFormatter = PartialFormatter(defaultRegion: isoCode.uppercased())
         
         let formattedNumber = partialFormatter.formatPartial(phoneNumber)
         
@@ -153,7 +149,6 @@ public class SwiftLibphonenumberPlugin: NSObject, FlutterPlugin {
         
         let formattedExampleNumber = phoneNumberKit.getFormattedExampleNumber(forCountry: isoCode, ofType: phoneNumberType, withFormat: phoneNumberFormat, withPrefix: true)
         
-        
         result(formattedExampleNumber)
     }
 }
@@ -164,13 +159,13 @@ public extension SwiftLibphonenumberPlugin {
         do {
             let allSupportedCountries = phoneNumberKit.allCountries()
             
-            if (regionCode.isEmpty == false && allSupportedCountries.contains(regionCode)) {
+            if !regionCode.isEmpty && allSupportedCountries.contains(regionCode) {
                 return try phoneNumberKit.parse(phonenumber, withRegion: regionCode, ignoreType: ignoreType)
             } else {
                 return try phoneNumberKit.parse(phonenumber, ignoreType: ignoreType)
             }
         } catch {
-          throw error
+            throw error
         }
     }
     
